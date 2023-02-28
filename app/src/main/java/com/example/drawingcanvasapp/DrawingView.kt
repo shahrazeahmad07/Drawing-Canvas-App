@@ -97,8 +97,11 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     fun setSizeForBrush(newSize: Float) {
         brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+    }
 
-        drawPaint.strokeWidth = brushSize
+    fun setColor(newColor: String) {
+        val color = Color.parseColor(newColor)
+        this.color = color
     }
 
 
