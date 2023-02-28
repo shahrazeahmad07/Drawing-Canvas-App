@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
@@ -34,7 +35,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         drawPaint.style = Paint.Style.STROKE
         drawPaint.strokeJoin = Paint.Join.ROUND
         drawPaint.strokeCap = Paint.Cap.ROUND
-        brushSize = 10.toFloat()
+//        brushSize = 10.toFloat()
     }
 
     //! canvas set ker rahe bus bitmap create kerte apna or wo canvas main pas ker dete k ye hai hamara bitmap
@@ -92,6 +93,12 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         }
         invalidate()
         return true
+    }
+
+    fun setSizeForBrush(newSize: Float) {
+        brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+
+        drawPaint.strokeWidth = brushSize
     }
 
 
