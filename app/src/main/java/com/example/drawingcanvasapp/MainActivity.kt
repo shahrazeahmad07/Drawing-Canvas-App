@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity() {
             binding.drawingView.onClickUndo()
         }
 
+        //! redo button
         binding.ibRedo.setOnClickListener {
             binding.drawingView.onClickRedo()
         }
