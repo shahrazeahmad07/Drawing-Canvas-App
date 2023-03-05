@@ -88,6 +88,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             }
             MotionEvent.ACTION_UP -> {
                 paths.add(drawPath)
+                undoPaths.clear()
                 drawPath = CustomPath(color, brushSize)
             }
             else -> return false
