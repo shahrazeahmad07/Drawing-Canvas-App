@@ -74,6 +74,15 @@ class MainActivity : AppCompatActivity() {
         binding.ibGallery.setOnClickListener {
             requestStoragePermission()
         }
+
+        //! undo button
+        binding.ibUndo.setOnClickListener {
+            binding.drawingView.onClickUndo()
+        }
+
+        binding.ibRedo.setOnClickListener {
+            binding.drawingView.onClickRedo()
+        }
     }
 
     //! this dialog will appear when user click on background Image button

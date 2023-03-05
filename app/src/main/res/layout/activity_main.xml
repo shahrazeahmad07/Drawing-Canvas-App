@@ -150,6 +150,20 @@
             android:scaleType="fitXY"
             android:src="@drawable/ic_brush" />
 
+        <ImageButton
+            android:id="@+id/ibUndo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_undo" />
+
+        <ImageButton
+            android:id="@+id/ibRedo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_redo" />
+
 
     </LinearLayout>
 

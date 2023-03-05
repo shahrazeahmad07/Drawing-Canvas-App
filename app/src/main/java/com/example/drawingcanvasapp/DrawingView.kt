@@ -22,6 +22,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     private lateinit var canvasPaint: Paint
 
     private val paths = ArrayList<CustomPath>()
+    private val undoPaths = ArrayList<CustomPath>()
 
     init {
         setUpDrawing()
@@ -95,16 +96,36 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         return true
     }
 
+    //! function that sets new size
     fun setSizeForBrush(newSize: Float) {
         brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
     }
 
+    //! function that set new color
     fun setColor(newColor: String) {
         val color = Color.parseColor(newColor)
         this.color = color
     }
 
+    //! undo ker raha last drawing
+    fun onClickUndo() {
+        if (paths.size > 0) {
+            undoPaths.add(paths.removeAt(paths.size -1))
+            //! this calls an internal method again internally
+            invalidate()
+        }
+    }
 
+    //! redo ker raha last undo kya wa
+    fun onClickRedo() {
+        if (undoPaths.size > 0) {
+            paths.add(undoPaths.removeAt(undoPaths.size -1))
+            invalidate()
+        }
+    }
+
+    //! custom path class that has color and thickness properties which we are going to use to set
+    // paint properties
     internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path() {
 
     }
