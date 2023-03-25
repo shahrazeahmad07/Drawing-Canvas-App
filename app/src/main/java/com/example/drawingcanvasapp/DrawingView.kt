@@ -1,6 +1,5 @@
 package com.example.drawingcanvasapp
 
-import android.app.Notification.Action
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas

@@ -4,9 +4,14 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
@@ -16,20 +21,29 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.lifecycle.lifecycleScope
 import com.example.drawingcanvasapp.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var ibCurrentPaint: ImageButton
 
     //! opening gallery.
-    private val openGalleryLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK && it.data != null) {
-            //! setting background image which the user selected
-            binding.ivBackgroundImage.setImageURI(it.data?.data)
+    private val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK && it.data != null) {
+                //! setting background image which the user selected
+                binding.ivBackgroundImage.setImageURI(it.data?.data)
+            }
         }
-    }
 
+    //! permission launcher
     private val requestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             it.entries.forEach { permission ->
@@ -38,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                 if (isGranted) {
                     //! to be done after a certain permission access is granted
                     // when is checking which permission is granted
-                    when(permissionName) {
+                    when (permissionName) {
                         Manifest.permission.READ_EXTERNAL_STORAGE -> {
                             showGalleryOpenDialog()
                         }
@@ -84,28 +98,14 @@ class MainActivity : AppCompatActivity() {
         binding.ibRedo.setOnClickListener {
             binding.drawingView.onClickRedo()
         }
-    }
 
-    //! this dialog will appear when user click on background Image button
-    private fun showGalleryOpenDialog() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle("Select Background Image from Gallery")
-        builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.setPositiveButton("Open") { _, _ ->
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            openGalleryLauncher.launch(intent)
-        }
-        builder.create().show()
-    }
-
-    //! this function gets storage permission
-    private fun requestStoragePermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            showRationaleDialog()
-        } else {
-            requestPermission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        binding.ibSave.setOnClickListener {
+            if (isReadStoragePermissionAllowed()) {
+                lifecycleScope.launch{
+                    val myBitmap = getBitmapFromView(binding.flDrawingContainer)
+                    saveBitmapFile(myBitmap)
+                }
+            }
         }
     }
 
@@ -149,6 +149,20 @@ class MainActivity : AppCompatActivity() {
         ibCurrentPaint = view
     }
 
+    //! this function gets storage permission
+    private fun requestStoragePermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showRationaleDialog()
+        } else {
+            requestPermission.launch(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            )
+        }
+    }
+
     //! to show that read permission is required which the user has denied already
     private fun showRationaleDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
@@ -165,5 +179,83 @@ class MainActivity : AppCompatActivity() {
         }
         builder.create().show()
 
+    }
+
+    //! this dialog will appear when user click on background Image button
+    private fun showGalleryOpenDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("Select Background Image from Gallery")
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.setPositiveButton("Open") { _, _ ->
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            openGalleryLauncher.launch(intent)
+        }
+        builder.create().show()
+    }
+
+
+
+    //! creating bitmap i.e., image of the drawing!
+    private fun getBitmapFromView(view: View): Bitmap {
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(returnedBitmap)
+        val backgroundDrawable = view.background
+        if (backgroundDrawable != null) {
+            backgroundDrawable.draw(canvas)
+        } else {
+            canvas.drawColor(Color.WHITE)
+        }
+        view.draw(canvas)
+        return returnedBitmap
+    }
+
+    //! saving the file in the location
+    private suspend fun saveBitmapFile(bitmap: Bitmap?): String {
+        var locationOfFile = ""
+        withContext(Dispatchers.IO) {
+            if (bitmap != null) {
+                try {
+                    val bytes = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+                    // /storage/emulated/0/DCIM/My Drawings/DrawingApp_1678794759.png
+                    val file = File(Environment.getExternalStoragePublicDirectory("DCIM"), File.separator + "DrawingApp_" + System.currentTimeMillis() / 1000 + ".png")
+//                    val file =
+//                        File(externalCacheDir?.absoluteFile.toString() + File.separator + "DrawingApp_" + System.currentTimeMillis() / 1000 + ".png")
+                    val fileOutputStream = FileOutputStream(file)
+                    fileOutputStream.write(bytes.toByteArray())
+                    fileOutputStream.close()
+
+                    locationOfFile = file.absolutePath
+
+                    runOnUiThread {
+                        if (locationOfFile.isNotEmpty()) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "File Saved $locationOfFile",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Something went wrong",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    locationOfFile = ""
+                    e.printStackTrace()
+                }
+            }
+        }
+        return locationOfFile
+    }
+
+    //! checking if we have read permission allowed or not
+    private fun isReadStoragePermissionAllowed() : Boolean {
+        val result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        return result == PackageManager.PERMISSION_GRANTED
     }
 }
