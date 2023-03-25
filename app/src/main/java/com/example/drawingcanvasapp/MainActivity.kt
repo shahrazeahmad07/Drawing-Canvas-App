@@ -71,11 +71,6 @@ class MainActivity : AppCompatActivity() {
             showBrushSizeDialogue()
         }
 
-        //! background image select button
-        binding.ibGallery.setOnClickListener {
-            requestStoragePermission()
-        }
-
         //! undo button
         binding.ibUndo.setOnClickListener {
             binding.drawingView.onClickUndo()
@@ -85,28 +80,10 @@ class MainActivity : AppCompatActivity() {
         binding.ibRedo.setOnClickListener {
             binding.drawingView.onClickRedo()
         }
-    }
 
-    //! this dialog will appear when user click on background Image button
-    private fun showGalleryOpenDialog() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle("Select Background Image from Gallery")
-        builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.setPositiveButton("Open") { _, _ ->
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            openGalleryLauncher.launch(intent)
-        }
-        builder.create().show()
-    }
-
-    //! this function gets storage permission
-    private fun requestStoragePermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            showRationaleDialog()
-        } else {
-            requestPermission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        //! background image select button
+        binding.ibGallery.setOnClickListener {
+            requestStoragePermission()
         }
     }
 
@@ -165,6 +142,28 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         builder.create().show()
+    }
 
+    //! this dialog will appear when user click on background Image button
+    private fun showGalleryOpenDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("Select Background Image from Gallery")
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.setPositiveButton("Open") { _, _ ->
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            openGalleryLauncher.launch(intent)
+        }
+        builder.create().show()
+    }
+
+    //! this function gets storage permission
+    private fun requestStoragePermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showRationaleDialog()
+        } else {
+            requestPermission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        }
     }
 }
