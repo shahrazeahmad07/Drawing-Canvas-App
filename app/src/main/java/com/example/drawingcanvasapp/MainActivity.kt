@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //! permission request Launcher
     private val requestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             it.entries.forEach { permission ->
