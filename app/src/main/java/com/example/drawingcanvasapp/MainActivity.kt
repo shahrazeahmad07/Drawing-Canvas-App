@@ -17,7 +17,6 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -225,7 +224,7 @@ class MainActivity : AppCompatActivity() {
         return returnedBitmap
     }
 
-    //! save Image
+    //! save Image in Pictures folder
     private fun savePhotoToExternalStorage(bmp : Bitmap?) : Boolean{
         val imageCollection : Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
