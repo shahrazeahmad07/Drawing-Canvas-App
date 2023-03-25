@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Drawing Canvas App</string>
+    <string name="please_wait">Please Wait</string>
 </resources>

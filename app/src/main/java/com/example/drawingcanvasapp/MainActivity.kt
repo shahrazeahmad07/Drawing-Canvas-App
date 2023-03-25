@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var ibCurrentPaint: ImageButton
 
+    private lateinit var customDialog: Dialog
+
     //! opening gallery.
     private val openGalleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -80,6 +82,11 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
+        //! initializing custom Dialog
+        customDialog = Dialog(this)
+        customDialog.setContentView(R.layout.custom_progress_dialog)
+        customDialog.setCancelable(false)
+
         // Brush size picker
         binding.ibBrushSize.setOnClickListener {
             showBrushSizeDialogue()
@@ -104,6 +111,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //! save drawing button
         binding.ibSave.setOnClickListener {
             val isReadPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
             val isWritePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -111,10 +119,12 @@ class MainActivity : AppCompatActivity() {
             if (!isReadPermission && !isWritePermission) {
                 requestStoragePermission2()
             } else {
+                customDialog.show()
                 lifecycleScope.launch {
                     val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
                     if (savePhotoToExternalStorage(myDrawingBitmap)) {
-                        Snackbar.make(binding.ibSave, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
+                        customDialog.dismiss()
+                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
