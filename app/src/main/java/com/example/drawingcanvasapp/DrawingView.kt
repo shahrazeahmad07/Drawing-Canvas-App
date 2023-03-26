@@ -1,12 +1,13 @@
 package com.example.drawingcanvasapp
 
-import android.app.Notification.Action
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -15,8 +16,9 @@ import android.view.View
 class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     private lateinit var drawPaint: Paint
     private lateinit var drawPath: CustomPath
-    private var color: Int = Color.BLACK
-    private var brushSize: Float = 0.toFloat()
+    private var currentColor: Int = Color.BLACK
+    private var currentBrushSize: Float = 0.toFloat()
+    private var currentPorterDuffXfermode: PorterDuffXfermode? = null
     private lateinit var canvasBitmap: Bitmap
     private lateinit var canvas: Canvas
     private lateinit var canvasPaint: Paint
@@ -31,7 +33,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     //! bta rahe k style kya ho ga draw kerne ka bus with using drawPaint variable.
     private fun setUpDrawing() {
         drawPaint = Paint()
-        drawPath = CustomPath(color, brushSize)
+        drawPath = CustomPath(currentColor, currentBrushSize, currentPorterDuffXfermode)
         canvasPaint = Paint(Paint.DITHER_FLAG)
         drawPaint.style = Paint.Style.STROKE
         drawPaint.strokeJoin = Paint.Join.ROUND
@@ -50,16 +52,18 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     // touch event se la rahe onTouchEvent method main se
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        canvas?.drawBitmap(canvasBitmap, 0f, 0f, canvasPaint)
+        canvas?.drawBitmap(canvasBitmap, 0f, 0f, null)
 
         for (path in paths) {
             drawPaint.strokeWidth = path.brushThickness
             drawPaint.color = path.color
+            drawPaint.xfermode = path.porterDuffXfermode
             canvas?.drawPath(path, drawPaint)
         }
 
         drawPaint.strokeWidth = drawPath.brushThickness
         drawPaint.color = drawPath.color
+        drawPaint.xfermode = drawPath.porterDuffXfermode
         canvas?.drawPath(drawPath, drawPaint)
     }
 
@@ -70,8 +74,9 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
         when(event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                drawPath.color = color
-                drawPath.brushThickness = brushSize
+                drawPath.color = currentColor
+                drawPath.brushThickness = currentBrushSize
+                drawPath.porterDuffXfermode = currentPorterDuffXfermode
                 drawPath.reset()
                 if (touchX != null) {
                     if (touchY != null) {
@@ -89,7 +94,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             MotionEvent.ACTION_UP -> {
                 paths.add(drawPath)
                 undoPaths.clear()
-                drawPath = CustomPath(color, brushSize)
+                drawPath = CustomPath(currentColor, currentBrushSize, currentPorterDuffXfermode)
             }
             else -> return false
         }
@@ -99,13 +104,13 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     //! function that sets new size
     fun setSizeForBrush(newSize: Float) {
-        brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+        currentBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
     }
 
     //! function that set new color
     fun setColor(newColor: String) {
         val color = Color.parseColor(newColor)
-        this.color = color
+        this.currentColor = color
     }
 
     //! undo ker raha last drawing
@@ -125,9 +130,13 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         }
     }
 
+    fun onEraser() {
+        currentPorterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+    }
+
     //! custom path class that has color and thickness properties which we are going to use to set
     // paint properties
-    internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path() {
+    internal inner class CustomPath(var color: Int, var brushThickness: Float, var porterDuffXfermode: PorterDuffXfermode?) : Path() {
 
     }
 

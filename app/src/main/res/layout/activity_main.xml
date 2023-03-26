@@ -151,6 +151,13 @@
             android:src="@drawable/ic_brush" />
 
         <ImageButton
+            android:id="@+id/ibEraser"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_eraser" />
+
+        <ImageButton
             android:id="@+id/ibSave"
             android:layout_width="50dp"
             android:layout_height="50dp"
