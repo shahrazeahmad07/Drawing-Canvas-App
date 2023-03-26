@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK && it.data != null) {
                 //! setting background image which the user selected
-//                binding.ivBackgroundImage.setImageURI(it.data?.data)
+                binding.ivBackgroundImage.setImageURI(it.data?.data)
             }
         }
 
@@ -128,6 +128,10 @@ class MainActivity : AppCompatActivity() {
 //                    }
                 }
             }
+        }
+
+        binding.ibEraser.setOnClickListener {
+            binding.drawingView.onEraserSelect()
         }
     }
 

@@ -6,6 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -19,7 +21,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     private lateinit var backgroundBitmap : Bitmap
     private lateinit var viewBitmap : Bitmap
-    private val canvasBackgroundColor: Int = Color.WHITE
+//    private val canvasBackgroundColor: Int = Color.WHITE
     private lateinit var canvas : Canvas
 
     private val drawPath: Path = Path()
@@ -47,7 +49,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     //! controls drawing
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        canvas?.drawColor(canvasBackgroundColor)
+//        canvas?.drawColor(canvasBackgroundColor)
         canvas?.drawBitmap(backgroundBitmap, 0f, 0f, null)
         canvas?.drawBitmap(viewBitmap, 0f, 0f, null)
     }
@@ -77,16 +79,27 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     }
 
 
-
     //! function that sets new size
     fun setSizeForBrush(newSize: Float) {
+        disableEraser()
         currentBrushSize = toPixel(newSize)
     }
 
     //! function that set new color
     fun setColor(newColor: String) {
+        disableEraser()
         val color = Color.parseColor(newColor)
         currentColor = color
+    }
+
+    fun onEraserSelect() {
+        drawPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+    }
+
+    private fun disableEraser() {
+        drawPaint.xfermode = null
+        drawPaint.shader = null
+        drawPaint.maskFilter = null
     }
 
     //! converts float value to pixel value
