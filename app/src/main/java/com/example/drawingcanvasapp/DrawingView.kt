@@ -54,17 +54,17 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         super.onDraw(canvas)
         canvas?.drawBitmap(canvasBitmap, 0f, 0f, null)
 
-        for (path in paths) {
-            drawPaint.strokeWidth = path.brushThickness
-            drawPaint.color = path.color
-            drawPaint.xfermode = path.porterDuffXfermode
-            canvas?.drawPath(path, drawPaint)
-        }
-
-        drawPaint.strokeWidth = drawPath.brushThickness
-        drawPaint.color = drawPath.color
-        drawPaint.xfermode = drawPath.porterDuffXfermode
-        canvas?.drawPath(drawPath, drawPaint)
+//        for (path in paths) {
+//            drawPaint.strokeWidth = path.brushThickness
+//            drawPaint.color = path.color
+//            drawPaint.xfermode = path.porterDuffXfermode
+//            canvas?.drawPath(path, drawPaint)
+//        }
+//
+//        drawPaint.strokeWidth = drawPath.brushThickness
+//        drawPaint.color = drawPath.color
+//        drawPaint.xfermode = drawPath.porterDuffXfermode
+//        canvas?.drawPath(drawPath, drawPaint)
     }
 
     //! identify ker raha k kis kis path per touch kya user nai or wo path ko mention ker raha bus
@@ -74,9 +74,9 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
         when(event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                drawPath.color = currentColor
-                drawPath.brushThickness = currentBrushSize
-                drawPath.porterDuffXfermode = currentPorterDuffXfermode
+                drawPaint.color = currentColor
+                drawPaint.strokeWidth = currentBrushSize
+                drawPaint.xfermode = currentPorterDuffXfermode
                 drawPath.reset()
                 if (touchX != null) {
                     if (touchY != null) {
@@ -88,6 +88,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
                 if (touchX != null) {
                     if (touchY != null) {
                         drawPath.lineTo(touchX, touchY)
+                        canvas.drawPath(drawPath, drawPaint)
                     }
                 }
             }
@@ -105,6 +106,9 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     //! function that sets new size
     fun setSizeForBrush(newSize: Float) {
         currentBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+        currentPorterDuffXfermode = null
+        drawPaint.shader = null
+        drawPaint.maskFilter = null
     }
 
     //! function that set new color
