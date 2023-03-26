@@ -16,8 +16,8 @@ import android.view.View
 class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     private var drawPaint: Paint = Paint()
-    private var currentColor: Int = Color.BLACK
     private var currentBrushSize: Float = toPixel(10f)
+    private var currentEraserSize: Float = toPixel(10f)
 
     private lateinit var backgroundBitmap : Bitmap
     private lateinit var viewBitmap : Bitmap
@@ -29,13 +29,13 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     //! only set the paint type and style here
     init {
-        drawPaint.color = currentColor
+        drawPaint.color = Color.BLACK
         drawPaint.isAntiAlias = true
         drawPaint.isDither = true
         drawPaint.style = Paint.Style.STROKE
         drawPaint.strokeCap = Paint.Cap.ROUND
         drawPaint.strokeJoin = Paint.Join.ROUND
-        drawPaint.strokeWidth = toPixel(currentBrushSize)
+        drawPaint.strokeWidth = currentBrushSize
     }
 
     //! creates bitmap and canvas according to screen size
@@ -60,8 +60,8 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         when(event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (touchX != null && touchY != null) {
-                    drawPaint.strokeWidth = currentBrushSize
-                    drawPaint.color = currentColor
+//                    drawPaint.strokeWidth = currentBrushSize
+//                    drawPaint.color = currentColor
                     drawPath.moveTo(touchX, touchY)
                 }
             }
@@ -75,7 +75,6 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             }
         }
         return true
-
     }
 
 
@@ -83,19 +82,24 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     fun setSizeForBrush(newSize: Float) {
         disableEraser()
         currentBrushSize = toPixel(newSize)
+        drawPaint.strokeWidth = currentBrushSize
     }
 
     //! function that set new color
     fun setColor(newColor: String) {
         disableEraser()
-        val color = Color.parseColor(newColor)
-        currentColor = color
+        drawPaint.strokeWidth = currentBrushSize
+        drawPaint.color = Color.parseColor(newColor)
     }
 
-    fun onEraserSelect() {
+    //! Eraser feature
+    fun onEraserSelect(newSize: Float) {
+        currentEraserSize = toPixel(newSize)
+        drawPaint.strokeWidth = currentEraserSize
         drawPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
+    //! disables eraser and convert drawPaint into brush
     private fun disableEraser() {
         drawPaint.xfermode = null
         drawPaint.shader = null

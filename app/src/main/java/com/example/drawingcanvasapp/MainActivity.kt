@@ -23,7 +23,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingcanvasapp.databinding.ActivityMainBinding
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -131,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.ibEraser.setOnClickListener {
-            binding.drawingView.onEraserSelect()
+            showEraserSizeDialogue()
         }
     }
 
@@ -153,6 +152,26 @@ class MainActivity : AppCompatActivity() {
             brushDialogue.dismiss()
         }
         brushDialogue.show()
+    }
+
+    //! this function is called in Eraser Button to change Eraser size
+    private fun showEraserSizeDialogue() {
+        val eraserDialog = Dialog(this)
+        eraserDialog.setContentView(R.layout.dialogue_eraser_size)
+        eraserDialog.setTitle("Choose Eraser Size: ")
+        eraserDialog.findViewById<ImageButton>(R.id.ibSmall).setOnClickListener {
+            binding.drawingView.onEraserSelect(5.toFloat())
+            eraserDialog.dismiss()
+        }
+        eraserDialog.findViewById<ImageButton>(R.id.ibMedium).setOnClickListener {
+            binding.drawingView.onEraserSelect(10.toFloat())
+            eraserDialog.dismiss()
+        }
+        eraserDialog.findViewById<ImageButton>(R.id.iblarge).setOnClickListener {
+            binding.drawingView.onEraserSelect(20.toFloat())
+            eraserDialog.dismiss()
+        }
+        eraserDialog.show()
     }
 
     //! this function is called in color pallet views using onClick xml feature
