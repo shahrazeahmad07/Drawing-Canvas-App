@@ -8,20 +8,21 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 
 class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     private var drawPaint: Paint = Paint()
     private var currentColor: Int = Color.BLACK
-    private var currentBrushSize: Float = 15f
+    private var currentBrushSize: Float = toPixel(10f)
 
     private lateinit var backgroundBitmap : Bitmap
     private lateinit var viewBitmap : Bitmap
     private val canvasBackgroundColor: Int = Color.WHITE
     private lateinit var canvas : Canvas
 
-    private lateinit var drawPath: CustomPath
+    private val drawPath: Path = Path()
 
 
     //! only set the paint type and style here
@@ -51,16 +52,48 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         canvas?.drawBitmap(viewBitmap, 0f, 0f, null)
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val touchX = event?.x
+        val touchY = event?.y
+        when(event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if (touchX != null && touchY != null) {
+                    drawPaint.strokeWidth = currentBrushSize
+                    drawPaint.color = currentColor
+                    drawPath.moveTo(touchX, touchY)
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                drawPath.lineTo(touchX!!, touchY!!)
+                canvas.drawPath(drawPath, drawPaint)
+                invalidate()
+            }
+            MotionEvent.ACTION_UP -> {
+                drawPath.reset()
+            }
+        }
+        return true
+
+    }
+
+
+
+    //! function that sets new size
+    fun setSizeForBrush(newSize: Float) {
+        currentBrushSize = toPixel(newSize)
+    }
+
+    //! function that set new color
+    fun setColor(newColor: String) {
+        val color = Color.parseColor(newColor)
+        currentColor = color
+    }
+
     //! converts float value to pixel value
     private fun toPixel(brushSize: Float): Float {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, brushSize, resources.displayMetrics)
     }
 
-
-    //! Custom Path class
-    private inner class CustomPath(color: Int, brushSize: Float) : Path() {
-
-    }
 }
 
 //package com.example.drawingcanvasapp

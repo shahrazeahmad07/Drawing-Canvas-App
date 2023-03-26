@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK && it.data != null) {
                 //! setting background image which the user selected
-                binding.ivBackgroundImage.setImageURI(it.data?.data)
+//                binding.ivBackgroundImage.setImageURI(it.data?.data)
             }
         }
 
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //setting default brush size
-        binding.drawingView.setSizeForBrush(10.toFloat())
+//        binding.drawingView.setSizeForBrush(10.toFloat())
 
         //! setting default color pallet
         val layout = binding.llColorPallet
@@ -94,12 +94,12 @@ class MainActivity : AppCompatActivity() {
 
         //! undo button
         binding.ibUndo.setOnClickListener {
-            binding.drawingView.onClickUndo()
+//            binding.drawingView.onClickUndo()
         }
 
         //! redo button
         binding.ibRedo.setOnClickListener {
-            binding.drawingView.onClickRedo()
+//            binding.drawingView.onClickRedo()
         }
 
         //! background image select button
@@ -121,11 +121,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 customDialog.show()
                 lifecycleScope.launch {
-                    val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
-                    if (savePhotoToExternalStorage(myDrawingBitmap)) {
-                        customDialog.dismiss()
-                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
-                    }
+//                    val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
+//                    if (savePhotoToExternalStorage(myDrawingBitmap)) {
+//                        customDialog.dismiss()
+//                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
+//                    }
                 }
             }
         }
