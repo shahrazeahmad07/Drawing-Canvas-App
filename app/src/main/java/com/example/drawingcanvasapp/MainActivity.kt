@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingcanvasapp.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -93,12 +94,12 @@ class MainActivity : AppCompatActivity() {
 
         //! undo button
         binding.ibUndo.setOnClickListener {
-//            binding.drawingView.onClickUndo()
+            binding.drawingView.onClickUndo()
         }
 
         //! redo button
         binding.ibRedo.setOnClickListener {
-//            binding.drawingView.onClickRedo()
+            binding.drawingView.onClickRedo()
         }
 
         //! background image select button
@@ -120,11 +121,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 customDialog.show()
                 lifecycleScope.launch {
-//                    val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
-//                    if (savePhotoToExternalStorage(myDrawingBitmap)) {
-//                        customDialog.dismiss()
-//                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
-//                    }
+                    val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
+                    if (savePhotoToExternalStorage(myDrawingBitmap)) {
+                        customDialog.dismiss()
+                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

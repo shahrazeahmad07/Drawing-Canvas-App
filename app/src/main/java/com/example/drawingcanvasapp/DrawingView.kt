@@ -26,6 +26,9 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     private val drawPath: Path = Path()
 
+    private val eachActionBitmapList: ArrayList<Bitmap> = ArrayList()
+    private val undoActionBitmapList: ArrayList<Bitmap> = ArrayList()
+
 
     //! only set the paint type and style here
     init {
@@ -71,10 +74,24 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
+                eachActionBitmapList.add(getBitMap())
+                undoActionBitmapList.clear()
                 drawPath.reset()
             }
         }
         return true
+    }
+
+    private fun getBitMap(): Bitmap {
+        val bitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        draw(canvas)
+        return bitmap
+//        this.isDrawingCacheEnabled = true
+//        this.buildDrawingCache()
+//        val bitmap: Bitmap = Bitmap.createBitmap(this.getDrawingCache())
+//        this.isDrawingCacheEnabled = false
+//        return bitmap
     }
 
 
@@ -106,12 +123,39 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         drawPaint.maskFilter = null
     }
 
+    //! undo ker raha last drawing
+    fun onClickUndo() {
+        if (eachActionBitmapList.isNotEmpty()) {
+            undoActionBitmapList.add(eachActionBitmapList.removeAt(eachActionBitmapList.lastIndex))
+            viewBitmap = if (eachActionBitmapList.isNotEmpty()) {
+                eachActionBitmapList[eachActionBitmapList.lastIndex]
+            } else {
+                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            }
+            canvas = Canvas(viewBitmap)
+            invalidate()
+        }
+    }
+
+    //! redo ker raha last undo kya wa
+    fun onClickRedo() {
+        if (undoActionBitmapList.isNotEmpty()) {
+            eachActionBitmapList.add(undoActionBitmapList.removeAt(undoActionBitmapList.lastIndex))
+            viewBitmap = eachActionBitmapList[eachActionBitmapList.lastIndex]
+            canvas = Canvas(viewBitmap)
+            invalidate()
+        }
+    }
+
     //! converts float value to pixel value
     private fun toPixel(brushSize: Float): Float {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, brushSize, resources.displayMetrics)
     }
 
 }
+
+//! Old Paint Widget!
+
 
 //package com.example.drawingcanvasapp
 //
