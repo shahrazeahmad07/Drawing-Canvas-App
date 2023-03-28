@@ -14,12 +14,14 @@ for devices running Android 10 and plus, API 29 and plus, to deal with scoped-st
 
 if you have any question feel free to ask.
 
-
+# Two versions
 I have created two types of drawing widget/paint widget, both can be downloaded from the release menu on GitHub repository of this project.
 
 1st (later will be refered as App 1) directly draws over the canvas when the user tend to draw, this drawing on canvas is permanent and can't be undone by undoing your action. rather you have to store bitmaps after each action and then if the user press undo, you simply just pop the 2nd last bitmap (last will be deleted na or removed to show the undo response) and then pass it to the new canvas object and then again called invalidate() to show the changes. This version has all features, specially that of eraser and undo redo. (but undo redo has an issue which will be discussed later in the text).
+branch is: main-1-new-paint-widget
 
 2nd (later will be referred as App 2) stores the paths which the user has moved finger through, and then draw color in those paths. and for undo and redo, simply a path from one list of current action is moved to undo Path List and onDraw method is recalled again using invalidate(). this version doesn't draws directly on the canvas. this one doesn't have eraser feature because of an encountered issue wich I list later.
+branch is: main-2-old-paint-widget
 
 the reason why I am explaining all this because of the two issue tha I encountered with each type of paint widget.
 
