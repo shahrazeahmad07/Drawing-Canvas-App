@@ -66,6 +66,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 //                    drawPaint.strokeWidth = currentBrushSize
 //                    drawPaint.color = currentColor
                     drawPath.moveTo(touchX, touchY)
+                    canvas.drawPath(drawPath, drawPaint)
                 }
             }
             MotionEvent.ACTION_MOVE -> {
