@@ -7,7 +7,7 @@ The user can draw color, change brush size, change color, undo last action, redo
 to access media from the gallery, we need read access for devices upto API 28 i.e., Android 9
 to save image in gallery, we need write access for devices upto API 28 i.e., Android 9
 
-for devices running Android 10 and plus, API 29 and plus, we use content resolver to save image in gallery!
+for devices running Android 10 and plus, API 29 and plus, to deal with scoped-storage in android, a new concept, we use content resolver to save image in gallery!
 
 ![ezgif-4-New](https://user-images.githubusercontent.com/68849516/228350325-155f9c4b-b82e-4919-b921-04b49ab92834.gif)
 
