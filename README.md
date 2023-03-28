@@ -26,4 +26,4 @@ the reason why I am explaining all this because of the two issue tha I encounter
 # Issues:
 1. App 1 has an issue in undo redo function. When an action is performed and then undo redo is tested, its working fine but when I draw a line and then undo it and then again draw a new line and then try to undo it, it first doesn't do anything but then when pressed again, removes both the current line and the previous line together.
 
-2. App 2 has a problem in implementing erasor, eraser is working but when I try to erase it starts drawing black color line
+2. App 2 has a problem in implementing eraser, eraser is working but when I try to erase it starts drawing black color line
