@@ -134,6 +134,11 @@ class MainActivity : AppCompatActivity() {
         binding.ibEraser.setOnClickListener{
             showEraserSizeDialogue()
         }
+
+        //! clear Screen Button
+        binding.ibClearScreen.setOnClickListener {
+            showClearScreenDialog()
+        }
     }
 
     //! this function is called in brush button to change brush size
@@ -174,6 +179,20 @@ class MainActivity : AppCompatActivity() {
             brushDialogue.dismiss()
         }
         brushDialogue.show()
+    }
+
+    //! clear screen warning
+    private fun showClearScreenDialog() {
+        val clearScreenDialog = AlertDialog.Builder(this)
+        clearScreenDialog.setTitle("Are you Sure, you want to clear the screen?")
+        clearScreenDialog.setPositiveButton("Yes") { dialog, _ ->
+            binding.drawingView.onClearScreen()
+            dialog.dismiss()
+        }
+        clearScreenDialog.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+        clearScreenDialog.create().show()
     }
 
     //! this function is called in color pallet views using onClick xml feature

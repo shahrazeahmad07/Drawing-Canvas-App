@@ -131,6 +131,14 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         currentXfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
+    //! on clear Screen Button, clears the drawing and sets pen tool.
+    fun onClearScreen() {
+        paths.clear()
+        undoPaths.clear()
+        currentXfermode = null
+        invalidate()
+    }
+
     //! undo ker raha last drawing
     fun onClickUndo() {
         if (paths.size > 0) {
