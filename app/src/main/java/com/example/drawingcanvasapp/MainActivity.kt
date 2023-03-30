@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
 
         //! eraser button
         binding.ibEraser.setOnClickListener{
-            binding.drawingView.onEraserSelect()
+            showEraserSizeDialogue()
         }
     }
 
@@ -151,6 +151,26 @@ class MainActivity : AppCompatActivity() {
         }
         brushDialogue.findViewById<ImageButton>(R.id.iblarge).setOnClickListener {
             binding.drawingView.setSizeForBrush(15.toFloat())
+            brushDialogue.dismiss()
+        }
+        brushDialogue.show()
+    }
+
+    //! this function is called in eraser button to change eraser size and set eraser too!
+    private fun showEraserSizeDialogue() {
+        val brushDialogue = Dialog(this)
+        brushDialogue.setContentView(R.layout.dialogue_eraser_size)
+        brushDialogue.setTitle("Choose Eraser Size: ")
+        brushDialogue.findViewById<ImageButton>(R.id.ibSmall).setOnClickListener {
+            binding.drawingView.onEraserSelect(5.toFloat())
+            brushDialogue.dismiss()
+        }
+        brushDialogue.findViewById<ImageButton>(R.id.ibMedium).setOnClickListener {
+            binding.drawingView.onEraserSelect(15.toFloat())
+            brushDialogue.dismiss()
+        }
+        brushDialogue.findViewById<ImageButton>(R.id.iblarge).setOnClickListener {
+            binding.drawingView.onEraserSelect(25.toFloat())
             brushDialogue.dismiss()
         }
         brushDialogue.show()

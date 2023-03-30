@@ -18,7 +18,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     private lateinit var drawPath: CustomPath
     private var currentColor: Int = Color.BLACK
     private var currentBrushSize: Float = 0.toFloat()
-    private var currentEraserSize: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics)
+    private var currentEraserSize: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics)
     private var currentXfermode: PorterDuffXfermode? = null
     private lateinit var canvasBitmap: Bitmap
     private lateinit var canvas: Canvas
@@ -34,7 +34,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     //! bta rahe k style kya ho ga draw kerne ka bus with using drawPaint variable.
     private fun setUpDrawing() {
         drawPaint = Paint()
-        drawPath = CustomPath(currentColor, currentBrushSize, currentXfermode)
+        drawPath = CustomPath(currentColor, currentBrushSize, currentXfermode, currentEraserSize)
         canvasPaint = Paint(Paint.DITHER_FLAG)
         drawPaint.style = Paint.Style.STROKE
         drawPaint.strokeJoin = Paint.Join.ROUND
@@ -61,6 +61,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             drawPaint.xfermode = path.xfermode
             if (path.xfermode != null) {
                 setLayerType(LAYER_TYPE_HARDWARE, null)
+                drawPaint.strokeWidth = path.eraserThickness
             }
             canvas?.drawPath(path, drawPaint)
         }
@@ -70,6 +71,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
         drawPaint.xfermode = drawPath.xfermode
         if (drawPath.xfermode != null) {
             setLayerType(LAYER_TYPE_HARDWARE, null)
+            drawPaint.strokeWidth = drawPath.eraserThickness
         }
         canvas?.drawPath(drawPath, drawPaint)
     }
@@ -84,6 +86,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
                 drawPath.color = currentColor
                 drawPath.brushThickness = currentBrushSize
                 drawPath.xfermode = currentXfermode
+                drawPath.eraserThickness = currentEraserSize
                 drawPath.reset()
                 if (touchX != null) {
                     if (touchY != null) {
@@ -101,7 +104,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             MotionEvent.ACTION_UP -> {
                 paths.add(drawPath)
                 undoPaths.clear()
-                drawPath = CustomPath(currentColor, currentBrushSize, currentXfermode)
+                drawPath = CustomPath(currentColor, currentBrushSize, currentXfermode, currentEraserSize)
             }
             else -> return false
         }
@@ -123,7 +126,8 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     }
 
     //! on Eraser select, sets paint tool to eraser
-    fun onEraserSelect() {
+    fun onEraserSelect(size: Float) {
+        currentEraserSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, resources.displayMetrics)
         currentXfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
@@ -146,7 +150,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     //! custom path class that has color and thickness properties which we are going to use to set
     // paint properties
-    internal inner class CustomPath(var color: Int, var brushThickness: Float, var xfermode: PorterDuffXfermode?) : Path() {
+    internal inner class CustomPath(var color: Int, var brushThickness: Float, var xfermode: PorterDuffXfermode?, var eraserThickness: Float) : Path() {
 
     }
 
