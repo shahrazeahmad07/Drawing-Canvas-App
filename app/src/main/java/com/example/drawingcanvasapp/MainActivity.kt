@@ -129,6 +129,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        //! eraser button
+        binding.ibEraser.setOnClickListener{
+            binding.drawingView.onEraserSelect()
+        }
     }
 
     //! this function is called in brush button to change brush size
