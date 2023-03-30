@@ -18,6 +18,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
     private lateinit var drawPath: CustomPath
     private var currentColor: Int = Color.BLACK
     private var currentBrushSize: Float = 0.toFloat()
+    private var currentEraserSize: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics)
     private var currentXfermode: PorterDuffXfermode? = null
     private lateinit var canvasBitmap: Bitmap
     private lateinit var canvas: Canvas
@@ -110,13 +111,20 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
 
     //! function that sets new size
     fun setSizeForBrush(newSize: Float) {
+        currentXfermode = null
         currentBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
     }
 
     //! function that set new color
     fun setColor(newColor: String) {
+        currentXfermode = null
         val color = Color.parseColor(newColor)
         this.currentColor = color
+    }
+
+    //! on Eraser select, sets paint tool to eraser
+    fun onEraserSelect() {
+        currentXfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
     //! undo ker raha last drawing
@@ -134,11 +142,6 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
             paths.add(undoPaths.removeAt(undoPaths.lastIndex))
             invalidate()
         }
-    }
-
-    //! on Eraser select, sets paint tool to eraser
-    fun onEraserSelect() {
-        currentXfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
     //! custom path class that has color and thickness properties which we are going to use to set
