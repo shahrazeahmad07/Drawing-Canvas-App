@@ -91,6 +91,7 @@ class DrawingView(context: Context, attr: AttributeSet) : View(context, attr) {
                 if (touchX != null) {
                     if (touchY != null) {
                         drawPath.moveTo(touchX, touchY)
+                        drawPath.lineTo(touchX, touchY)
                     }
                 }
             }

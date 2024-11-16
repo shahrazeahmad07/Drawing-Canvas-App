@@ -18,9 +18,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <androidx.constraintlayout.utils.widget.ImageFilterView
             android:id="@+id/ivBackgroundImage"
             android:layout_width="match_parent"
+            android:alpha="0.5"
             android:layout_height="match_parent"
             android:scaleType="centerInside" />
 

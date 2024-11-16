@@ -9,10 +9,12 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
@@ -20,12 +22,17 @@ import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import com.example.drawingcanvasapp.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
@@ -104,30 +111,33 @@ class MainActivity : AppCompatActivity() {
 
         //! background image select button
         binding.ibGallery.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                showGalleryOpenDialog()
-            } else {
-                requestReadPermission()
-            }
+            showGalleryOpenDialog()
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//            } else {
+//                requestReadPermission()
+//            }
         }
 
         //! save drawing button
         binding.ibSave.setOnClickListener {
-            val isReadPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            val isWritePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-
-            if (!isReadPermission && !isWritePermission) {
-                requestStoragePermission2()
-            } else {
+////            val isReadPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+////            val isWritePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//
+//            if (!isReadPermission && !isWritePermission) {
+//                requestStoragePermission2()
+//            } else {
                 customDialog.show()
-                lifecycleScope.launch {
+                lifecycleScope.launch(IO) {
                     val myDrawingBitmap = getBitmapFromView(binding.flDrawingContainer)
                     if (savePhotoToExternalStorage(myDrawingBitmap)) {
-                        customDialog.dismiss()
-                        Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT).show()
+                        withContext(Main) {
+                            customDialog.dismiss()
+                            Snackbar.make(it, "Drawing Saved Successfully", Snackbar.LENGTH_SHORT)
+                                .show()
+                        }
                     }
                 }
-            }
+//            }
         }
 
         //! eraser button
@@ -279,36 +289,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     //! save Image in Pictures folder
-    private fun savePhotoToExternalStorage(bmp : Bitmap?) : Boolean{
-        val imageCollection : Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        }else{
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    private fun savePhotoToExternalStorage(bmp : Bitmap?) : Boolean {
+        val parentFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path, "/Drawing Canvas")
+        if (!parentFolder.exists()) {
+            parentFolder.mkdir()
         }
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, File.separator + "DrawingApp_" + System.currentTimeMillis() / 1000 + ".png")
-            put(MediaStore.Images.Media.MIME_TYPE,"image/png")
-            if (bmp != null){
-                put(MediaStore.Images.Media.WIDTH,bmp.width)
-                put(MediaStore.Images.Media.HEIGHT,bmp.height)
-            }
+        val imageName = "DrawingApp_" + System.currentTimeMillis() / 1000 + ".png"
+        val mediaFile = File(parentFolder.path + File.separator + imageName)
+        val fileOutputStream = FileOutputStream(mediaFile)
+        fileOutputStream.use {
+            bmp?.compress(Bitmap.CompressFormat.PNG, 95, fileOutputStream)
         }
-
-        return try{
-            contentResolver.insert(imageCollection,contentValues)?.also {
-                contentResolver.openOutputStream(it).use { outputStream ->
-                    if (bmp != null){
-                        if(!bmp.compress(Bitmap.CompressFormat.PNG,95,outputStream)){
-                            throw IOException("Failed to save Bitmap")
-                        }
-                    }
-                }
-            } ?: throw IOException("Failed to create Media Store entry")
-            true
-        }catch (e: IOException){
-            e.printStackTrace()
-            false
-        }
+        MediaScannerConnection.scanFile(this, arrayOf(mediaFile.path), null, null)
+        return true
     }
 }
